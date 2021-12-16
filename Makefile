@@ -18,14 +18,14 @@ build: check
 	@mount | grep "jenkins\/tmpfs" || sudo mount -t tmpfs -o size=40G,nr_inodes=500k,mode=1777,noatime tmpfs $(BUILD_ROOT)
 	@echo "== configure"
 	@cd $(SRC) && PATH=$(PATH) gn gen $(BUILD_DIST)
-	@echo "# header"  > $(BUILD_DIST)/args.gn
-	@echo "is_component_build=false"  >> $(BUILD_DIST)/args.gn
+	@echo "# config"                            > $(BUILD_DIST)/args.gn
+	@echo "is_component_build=false"           >> $(BUILD_DIST)/args.gn
 	@echo "remove_webcore_debug_symbols=true"  >> $(BUILD_DIST)/args.gn
-	@echo "is_debug=false" > $(BUILD_DIST)/args.gn
-	@echo "symbol_level=1" > $(BUILD_DIST)/args.gn
-	@echo "blink_symbol_level=0"  >> $(BUILD_DIST)/args.gn
-	@echo "v8_symbol_level=0"  >> $(BUILD_DIST)/args.gn
-	@echo "enable_linux_installer=true"  >> $(BUILD_DIST)/args.gn
+	@echo "is_debug=false"                     >> $(BUILD_DIST)/args.gn
+	@echo "symbol_level=1"                     >> $(BUILD_DIST)/args.gn
+	@echo "blink_symbol_level=0"               >> $(BUILD_DIST)/args.gn
+	@echo "v8_symbol_level=0"                  >> $(BUILD_DIST)/args.gn
+	@echo "enable_linux_installer=true"        >> $(BUILD_DIST)/args.gn
 	@echo "== config: args.gn:"
 	@cat $(BUILD_DIST)/args.gn
 	@echo "== build"
