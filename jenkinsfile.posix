@@ -35,4 +35,10 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'chromium-browser*.deb', fingerprint: true
+        }
+    }
 }

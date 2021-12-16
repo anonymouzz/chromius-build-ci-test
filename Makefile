@@ -13,6 +13,7 @@ NC := '\033[0m'
 package: check
 	@echo "== package"
 	@cd $(SRC) && PATH=$(PATH) autoninja -C $(BUILD_DIST) "chrome/installer/linux:unstable_deb"
+	@cp $(BUILD_DIST)/chromium-browser*.deb .
 
 build: check
 	@mount | grep "jenkins\/tmpfs" || sudo mount -t tmpfs -o size=40G,nr_inodes=500k,mode=1777,noatime tmpfs $(BUILD_ROOT)
