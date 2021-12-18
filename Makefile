@@ -1,8 +1,9 @@
-BASE  := $${HOME}/chromium
+BASE  := $${HOME}/projects/chromium
 SRC   := $(BASE)/src
+
 TOOLS := $(BASE)/depot_tools
-BUILD_ROOT  := $${HOME}/tmpfs/
-BUILD_DIST := $(BUILD_ROOT)/chromium
+
+BUILD_ROOT  := $(BASE)/out
 
 PATH  := $(PATH):$(TOOLS)
 SHELL := env PATH=$(PATH) /bin/bash
@@ -10,44 +11,44 @@ SHELL := env PATH=$(PATH) /bin/bash
 RED := '\033[0;31m'
 NC := '\033[0m'
 
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+  PACK := pack_macos.sh
+  BUILD_ARGS := build_args_macos.gn
+else ifeq ($(UNAME), Linux)
+  PACK := pack_linux.sh
+  BUILD_ARGS := build_args_linux.gn
+else
+  PACK := pack_windows.cmd
+  BUILD_ARGS := build_args_windows.gn
+endif
+
+
 package: check
 	@echo "== package"
-	@cd $(SRC) && PATH=$(PATH) autoninja -C $(BUILD_DIST) "chrome/installer/linux:unstable_deb"
-	@cp $(BUILD_DIST)/chromium-browser*.deb .
+	@PATH=$(PATH) bash $(PACK) $(BUILD_ROOT) $(SRC)
 
 build: check
-	@mount | grep "jenkins\/tmpfs" || sudo mount -t tmpfs -o size=40G,nr_inodes=500k,mode=1777,noatime tmpfs $(BUILD_ROOT)
 	@echo "== configure"
-	@cd $(SRC) && PATH=$(PATH) gn gen $(BUILD_DIST)
-	@echo "# config"                            > $(BUILD_DIST)/args.gn
-	@echo "is_component_build=false"           >> $(BUILD_DIST)/args.gn
-	@echo "remove_webcore_debug_symbols=true"  >> $(BUILD_DIST)/args.gn
-	@echo "is_debug=false"                     >> $(BUILD_DIST)/args.gn
-	@echo "symbol_level=1"                     >> $(BUILD_DIST)/args.gn
-	@echo "blink_symbol_level=0"               >> $(BUILD_DIST)/args.gn
-	@echo "v8_symbol_level=0"                  >> $(BUILD_DIST)/args.gn
-	@echo "enable_linux_installer=true"        >> $(BUILD_DIST)/args.gn
-	@echo "== config: args.gn:"
-	@cat $(BUILD_DIST)/args.gn
+	@cd $(SRC) && PATH=$(PATH) gn gen $(BUILD_ROOT)
+	@cp $(BUILD_ARGS) $(BUILD_ROOT)/args.gn
 	@echo "== build"
-	@cd $(SRC) && PATH=$(PATH) EDITOR=cat gn args $(BUILD_DIST)  < $(BUILD_DIST)/args.gn
-	@echo "is_component_build=false"  >> $(BUILD_DIST)/args.gn
-	@cd $(SRC) && PATH=$(PATH) autoninja -C $(BUILD_DIST) chrome
+	@cd $(SRC) && PATH=$(PATH) autoninja -C $(BUILD_ROOT) chrome
 
 clean: check
 	@cd $(SRC)
-	@rm -fR $(BUILD_DIST)
+	@rm -fR $(BUILD_ROOT)
 
 check:
 	@test -d $(BASE) || (echo "$(RED)-----> please ssh to build node and run: make bootstrap-linux or make bootstrap-macos$(NC)" && exit -1)
 
-bootstrap-linux:
+prepare-linux:
 	@echo "== Install build dependecies"
 	@mkdir -p $(BASE)
 	@echo $(PATH)
 	@sudo apt install -y git
 	@git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $(TOOLS) || echo "Already cloned"
-	#@mount | grep "jenkins\/tmpfs" || sudo mount -t tmpfs -o size=40G,mode=1777,nr_inodes=500k,noatime tmpfs $(BUILD_ROOT)
 	@cd $(BASE) && PATH=$(PATH) fetch --nohooks chromium || echo "fetch is used only to get new checkouts. Use"
 	# patch dependeciescies
 	# https://stackoverflow.com/questions/65978703/missing-libappindicator3-1-installing-slack
@@ -57,3 +58,4 @@ bootstrap-linux:
 
 bootstrap-macos:
 	@echo "== Install build dependecies"
+	@brew install zsh tmux htop java11 mercurial wget

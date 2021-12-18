@@ -1,0 +1,9 @@
+# config
+is_component_build=false
+remove_webcore_debug_symbols=true
+is_debug=false
+symbol_level=1
+blink_symbol_level=0
+v8_symbol_level=0
+enable_linux_installer=true
+is_component_build=false

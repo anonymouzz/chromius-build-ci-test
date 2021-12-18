@@ -1,44 +1,74 @@
 #!/usr/bin/env groovy
 
 pipeline {
+    agent none
+
     options {
         ansiColor('xterm')
     }
 
-    agent {
-        node {
-            label 'posix'
-        }
-    }
-
     environment {
-        PATH = "$PATH:" + "${env.HOME}" + "/chromium/depot_tools"
+        PATH = "$PATH:" + "${env.HOME}" + "/projects/chromium/depot_tools"
     }
 
     stages {
-
         stage('clean') {
-            steps {
-                sh '''make clean'''
+            parallel {
+                stage('clean @ Linux') {
+                    agent { label 'linux' }
+                    steps {
+                        sh '''make clean'''
+                    }
+                }
+                stage('clean @ macOS') {
+                    agent { label 'macOS' }
+                    steps {
+                        sh '''make clean'''
+                    }
+                }
             }
         }
-
         stage('build') {
-            steps {
-                sh "make build"
+            parallel {
+                stage('build @ Linux') {
+                    agent { label 'linux' }
+                    steps {
+                        sh '''make build'''
+                    }
+                }
+                stage('build @ macOS') {
+                    agent { label 'macOS' }
+                    steps {
+                        sh '''make build'''
+                    }
+                }
             }
         }
-
         stage('package') {
-            steps {
-                sh "make package"
+            parallel {
+                stage('package @ Linux') {
+                    agent { label 'linux' }
+                    steps {
+                        sh '''make package'''
+                    }
+                    post {
+                        always {
+                            archiveArtifacts artifacts: 'dist/*.deb' fingerprint: true
+                        }
+                    }
+                }
+                stage('package @ macOS') {
+                    agent { label 'macOS' }
+                    steps {
+                        sh '''make package'''
+                    }
+                    post {
+                        always {
+                            archiveArtifacts artifacts: 'dist/*.bz2', fingerprint: true
+                        }
+                    }
+                }
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'chromium-browser*.deb', fingerprint: true
         }
     }
 }
