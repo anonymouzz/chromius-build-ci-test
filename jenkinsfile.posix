@@ -7,10 +7,6 @@ pipeline {
         ansiColor('xterm')
     }
 
-    environment {
-        PATH = "$PATH:" + "${env.HOME}" + "/projects/chromium/depot_tools"
-    }
-
     stages {
         stage('clean') {
             parallel {
