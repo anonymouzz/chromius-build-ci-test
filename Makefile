@@ -33,6 +33,7 @@ build: check
 	@echo "== configure"
 	@cd $(SRC) && PATH=$(PATH) gn gen $(BUILD_ROOT)
 	@cp $(BUILD_ARGS) $(BUILD_ROOT)/args.gn
+	@cd $(SRC) && PATH=$(PATH) gn gen $(BUILD_ROOT)
 	@echo "== build"
 	@cd $(SRC) && PATH=$(PATH) autoninja -C $(BUILD_ROOT) chrome
 
