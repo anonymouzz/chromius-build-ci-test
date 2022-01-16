@@ -25,7 +25,7 @@ pipeline {
                         bat """
                         cd c:\\chrome\\chromium\\src
                         gn gen out/Default --args="is_component_build = true is_debug = true blink_symbol_level = 0 v8_symbol_level = 0"
-                        autoninja -C out/Default chrome
+                        autoninja -C out\Default
                         """
                     }
                 }
