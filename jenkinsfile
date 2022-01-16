@@ -95,12 +95,12 @@ pipeline {
                         """
                         bat """
                             mkdir dist
-                            xcopy c:\\chrome\\chromium\\src\\out\\Default\\mini_installer.exe dist
+                            xcopy c:\\chrome\\chromium\\src\\out\\Default\\mini_installer.exe dist\\chrome_mini_installer.exe
                         """
                     }
                     post {
                         always {
-                            archiveArtifacts artifacts: 'dist/mini_installer.exe', fingerprint: true
+                            archiveArtifacts artifacts: 'dist/chrome_mini_installer.exe', fingerprint: true
                         }
                     }
                 }
