@@ -10,8 +10,8 @@ pipeline {
                     agent { label 'windows' }
                     steps {
                         bat """
-                            rd /s /q dist
-                            rd /s /q c:\\chrome\\chromium\\src\\out
+                        rd /s /q dist
+                        rd /s /q c:\\chrome\\chromium\\src\\out
                         """
                     }
                 }
@@ -23,9 +23,9 @@ pipeline {
                     agent { label 'windows' }
                     steps {
                         bat """
-                            cd c:\\chrome\\chromium\\src
-                            gn gen out/Default --args="is_component_build = true is_debug = true blink_symbol_level = 0 v8_symbol_level = 0"
-                            autoninja -C out\\Default chrome
+                        cd c:\\chrome\\chromium\\src
+                        gn gen out/Default --args="is_component_build = true is_debug = true blink_symbol_level = 0 v8_symbol_level = 0"
+                        autoninja -C out\\Default chrome
                         """
                     }
                 }
@@ -37,8 +37,8 @@ pipeline {
                     agent { label 'windows' }
                     steps {
                         bat """
-                            mkdir dist
-                            cd c:\\chrome\\chromium\\src\\out\\Default
+                        mkdir dist
+                        cd c:\\chrome\\chromium\\src\\out\\Default
                         """
                     }
                     post {
